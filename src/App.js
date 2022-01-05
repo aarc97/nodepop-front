@@ -1,5 +1,3 @@
-import React, { useState } from 'react';
-
 import LoginPage from './pages/login/login-page.component';
 import './App.css';
 
