@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FormInput from '../form-input/form-input.component';
 import CustomButton from '../custom-button/custom-button.component';
 
@@ -6,7 +7,20 @@ import { userLogin } from '../../utils/api/user';
 
 import './login.styles.css';
 
+import { UserContext } from '../../context/SessionContext';
+
 const Login = () => {
+  const navigate = useNavigate();
+  const userContext = useContext(UserContext);
+  const { currentUser } = userContext.state;
+  const { storeUserSession } = userContext.actions;
+
+  useEffect(() => {
+    if (Object.keys(currentUser).length > 0) {
+      navigate('/adverts');
+    }
+  }, []);
+
   const [userCredentials, setCredentials] = useState({
     email: '',
     password: '',
@@ -15,12 +29,18 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (event) => {
-    setErrorMessage('');
     event.preventDefault();
+    setErrorMessage('');
     const { email, password } = userCredentials;
     const userLoginResponse = await userLogin(email, password);
-    setErrorMessage(userLoginResponse.message);
-    console.log(userLoginResponse);
+    console.log('response', userLoginResponse);
+    const { valid, message, token } = userLoginResponse;
+    if (valid) {
+      storeUserSession({ email, token });
+      navigate('/adverts');
+    } else {
+      setErrorMessage(message);
+    }
   };
 
   const handleChange = (event) => {
@@ -49,12 +69,7 @@ const Login = () => {
           handleChange={handleChange}
         />
         <span className="form-error-message">{errorMessage}</span>
-        <CustomButton
-          className="button"
-          label="Sign In"
-          type="submit"
-          onClick={handleSubmit}
-        />
+        <CustomButton label="Sign In" type="submit" onClick={handleSubmit} />
       </form>
     </div>
   );

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import './custom-button.styles.css';
+
 const CustomButton = ({ label, onClickHandle, ...adittionalProps }) => (
   <button
     className="custom-button"

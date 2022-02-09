@@ -1,37 +1,21 @@
-import axios from 'axios';
-import { ApiConnection } from './api_connection_data';
+import { request } from './requests';
 
 export const userLogin = async (email, password) => {
   try {
-    const { HOST_NAME, PORT } = ApiConnection;
-
-    const params = new URLSearchParams();
-    params.append('email', email);
-    params.append('password', password);
-
-    const config = {
-      headers: { 'Content-Type': 'application/json' },
-    };
-
-    const response = await axios.post(
-      `http://${HOST_NAME}:${PORT}/api/auth/login`,
-      { email: email, password: password },
-      config
-    );
-    console.log('response', response.data);
-    if (response.status === 201) {
-      const { accessToken } = response.data;
+    const response = await request('post', '/auth/login', { email, password });
+    const { valid, data, message } = response;
+    if (valid) {
+      const { accessToken } = data;
       return {
         valid: true,
         email: email,
-        password: password,
-        accessToken: accessToken,
+        token: accessToken,
         message: 'USER_SUCCESFULLY_SIGNED_IN',
       };
     } else {
-      return { valid: true, accessToken: null, message: response.message };
+      return { valid, data, message };
     }
   } catch (error) {
-    return { valid: false, accessToken: null, message: error.message };
+    console.log('error', error.message);
   }
 };
