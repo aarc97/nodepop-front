@@ -1,75 +1,86 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import FormInput from '../form-input/form-input.component';
-import CustomButton from '../custom-button/custom-button.component';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
-import { userLogin } from '../../utils/api/user';
+import FormInput from "../form-input/form-input.component";
+import CustomButton from "../custom-button/custom-button.component";
 
-import './login.styles.css';
+import { isEmpty } from "../../utils/common/functions";
+import useSession from "../../hooks/useSession.hooks";
+import { onLogin } from "../../store/auth/auth.thunk";
 
-import { UserContext } from '../../context/SessionContext';
+import "./login.styles.css";
 
 const Login = () => {
   const navigate = useNavigate();
-  const userContext = useContext(UserContext);
-  const { currentUser } = userContext.state;
-  const { storeUserSession } = userContext.actions;
+
+  const { currentUser } = useSession();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (Object.keys(currentUser).length > 0) {
-      navigate('/adverts');
+    if (!isEmpty(currentUser)) {
+      navigate("/adverts");
     }
-  }, []);
+  }, [currentUser]);
 
   const [userCredentials, setCredentials] = useState({
-    email: '',
-    password: '',
+    email: "test@example.com",
+    password: "test1234",
+    remember: false,
   });
 
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setErrorMessage('');
-    const { email, password } = userCredentials;
-    const userLoginResponse = await userLogin(email, password);
-    console.log('response', userLoginResponse);
-    const { valid, message, token } = userLoginResponse;
-    if (valid) {
-      storeUserSession({ email, token });
-      navigate('/adverts');
-    } else {
-      setErrorMessage(message);
-    }
+
+    dispatch(
+      onLogin({ user: userCredentials, onError: setErrorMessage, navigate })
+    );
   };
 
   const handleChange = (event) => {
-    setErrorMessage('');
-    const { value, name } = event.target;
+    setErrorMessage("");
+    const { value, name, type, checked } = event.target;
+
+    if (type === "checkbox") {
+      return setCredentials({ ...userCredentials, [name]: checked });
+    }
     setCredentials({ ...userCredentials, [name]: value });
   };
 
-  const { email, password } = userCredentials;
+  const { email, password, remember } = userCredentials;
 
   return (
-    <div className="login">
-      <form>
+    <div className='login'>
+      <form onSubmit={handleSubmit}>
         <FormInput
-          name="email"
+          name='email'
           value={email}
-          type="email"
-          label="email"
+          type='email'
+          label='email'
           handleChange={handleChange}
         />
         <FormInput
-          name="password"
+          name='password'
           value={password}
-          type="password"
-          label="password"
+          type='password'
+          label='password'
           handleChange={handleChange}
         />
-        <span className="form-error-message">{errorMessage}</span>
-        <CustomButton label="Sign In" type="submit" onClick={handleSubmit} />
+        <div style={{ marginBottom: 24 }}>
+          <label>
+            <input
+              name='remember'
+              type='checkbox'
+              checked={remember}
+              onChange={handleChange}
+            />
+            Remember session
+          </label>
+        </div>
+        <span className='form-error-message'>{errorMessage}</span>
+        <CustomButton label='Sign In' type='submit' />
       </form>
     </div>
   );

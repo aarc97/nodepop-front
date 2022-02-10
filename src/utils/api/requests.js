@@ -1,22 +1,22 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { ApiConnection } from './api_connection_data';
-import { getSession } from '../storage/user_session';
+import { ApiConnection } from "./api_connection_data";
+import { getSession } from "../storage/user_session";
 
 const config = {
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 };
 const { HOST_NAME, PORT } = ApiConnection;
 
 export const request = async (type, path, params) => {
   const { token } = getSession();
-  if (token !== '') {
+  if (token !== "") {
     config.headers.Authorization = `Bearer ${token}`;
   }
   try {
     let response;
     switch (type) {
-      case 'post':
+      case "post":
         response = await axios.post(
           `http://${HOST_NAME}:${PORT}/api${path}`,
           params,

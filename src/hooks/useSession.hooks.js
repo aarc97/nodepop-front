@@ -1,35 +1,47 @@
-import { useState } from 'react';
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { saveUser, SAVE_USER } from "../store/auth/auth.actions";
+import { isEmpty } from "../utils/common/functions";
 
 import {
   storeSession,
   removeSession,
   getSession,
-} from '../utils/storage/user_session';
+} from "../utils/storage/user_session";
 
 const useSession = () => {
-  const currentSession = getSession();
-  const [currentUser, setCurrentUser] = useState(currentSession);
+  const currentUser = useSelector((state) => state.auth.currentUser);
+  const dispatch = useDispatch();
 
-  const storeUserSession = async ({ email, token }) => {
-    storeSession(email, token);
-    setCurrentUser({ email, token });
+  const saveUserDispatch = (payload = {}) => dispatch(saveUser(payload));
+
+  const getUser = async () => {
+    saveUserDispatch(getSession());
+  };
+
+  const storeUserSession = async ({ email, token, remember }) => {
+    if (remember) {
+      storeSession(email, token);
+    }
+
+    saveUserDispatch({ email, token });
   };
 
   const removeUserSession = async () => {
-    await removeSession();
-    setCurrentUser({});
+    removeSession();
+    saveUserDispatch();
   };
 
-  const getUserSession = async () => {
-    const { email, token } = getSession();
-    return { email, token };
-    //setCurrentUser({ email, token });
-  };
+  useEffect(() => {
+    if (isEmpty(currentUser)) {
+      getUser();
+    }
+  }, []);
 
   return {
     storeUserSession,
     removeUserSession,
-    getUserSession,
+    getUserSession: getSession,
     currentUser,
   };
 };

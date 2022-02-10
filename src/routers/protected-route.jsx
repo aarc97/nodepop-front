@@ -1,18 +1,16 @@
-import React, { useContext } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { UserContext } from '../context/SessionContext';
+import { Outlet, Navigate, useLocation } from "react-router-dom";
+import useSession from "../hooks/useSession.hooks";
+import { isEmpty } from "../utils/common/functions";
 
 const ProtectedRoute = () => {
-  const userContext = useContext(UserContext);
   const location = useLocation();
+  const { currentUser } = useSession();
 
-  const { currentUser } = userContext.state;
+  if (isEmpty(currentUser)) {
+    return <Navigate to='/login' state={{ from: location }} replace />;
+  }
 
-  return Object.keys(currentUser).length > 0 ? (
-    <Outlet from={location} />
-  ) : (
-    <Navigate to="/login" />
-  );
+  return <Outlet from={location} />;
 };
 
 export default ProtectedRoute;
