@@ -23,6 +23,13 @@ export const request = async (type, path, params) => {
           config
         );
         break;
+      case "delete":
+        response = await axios.delete(
+          `http://${HOST_NAME}:${PORT}/api${path}`,
+          params,
+          config
+        );
+        break;
       default:
         response = await axios.get(
           `http://${HOST_NAME}:${PORT}/api${path}`,
