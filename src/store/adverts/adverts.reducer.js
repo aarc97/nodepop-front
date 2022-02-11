@@ -1,36 +1,34 @@
-import { ADD_ADVERTS, DELETE_ADVERTS, GET_ADVERTS } from "./adverts.actions";
+import {
+  ADD_ADVERT,
+  DELETE_ADVERT,
+  GET_ADVERTS,
+  SAVE_ADVERT_TAGS,
+} from "./adverts.actions";
 import initialState from "./adverts.state";
-
-const getAdverts = (state, payload) => {
-  return {
-    ...state,
-    adverts: payload,
-  };
-};
-
-const addAdverts = (state, payload) => {
-  return {
-    ...state,
-    adverts: [...state.adverts, payload],
-  };
-};
-
-const deleteAdverts = (state, payload) => {
-  const updatedAdverts = state.adverts.filter(({ id }) => id !== payload.id);
-  return {
-    ...state,
-    adverts: updatedAdverts,
-  };
-};
 
 export default (state = initialState, { type, payload }) => {
   switch (type) {
     case GET_ADVERTS:
-      return getAdverts(state, payload);
-    case ADD_ADVERTS:
-      return addAdverts(state, payload);
-    case DELETE_ADVERTS:
-      return deleteAdverts(state, payload);
+      return {
+        ...state,
+        adverts: payload,
+      };
+    case SAVE_ADVERT_TAGS:
+      return {
+        ...state,
+        tags: payload,
+      };
+    case ADD_ADVERT:
+      return {
+        ...state,
+        adverts: [...state.adverts, payload],
+      };
+    case DELETE_ADVERT:
+      const updatedAdverts = state.adverts.filter(({ id }) => id !== payload);
+      return {
+        ...state,
+        adverts: updatedAdverts,
+      };
     default:
       return state;
   }
