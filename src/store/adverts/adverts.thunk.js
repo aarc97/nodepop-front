@@ -1,8 +1,12 @@
 import {
-  ADD_ADVERT,
-  DELETE_ADVERT,
-  GET_ADVERTS,
-  SAVE_ADVERT_TAGS,
+  addAdvertSuccess,
+  ADD_ADVERT_SUCCESS,
+  deleteAdvertSuccess,
+  DELETE_ADVERT_SUCCESS,
+  getAdvertsSuccess,
+  getAdvertsTagsSuccess,
+  GET_ADVERTS_SUCCESS,
+  GET_ADVERT_TAGS_SUCCESS,
 } from "./adverts.actions";
 import {
   addAdvertToServer,
@@ -18,12 +22,20 @@ export const fetchAdverts = () => async (dispatch) => {
     const { adverts } = adverts_request;
 
     if (!isEmpty(adverts)) {
-      dispatch({ type: GET_ADVERTS, payload: adverts });
+      dispatch(getAdvertsSuccess(adverts));
     }
 
+    getAdvertsTags()(dispatch);
+  } catch (error) {
+    console.log("fetchAdverts error", error);
+  }
+};
+
+export const getAdvertsTags = () => async (dispatch) => {
+  try {
     const tags = await getAdvertTagsFromServer();
     if (tags.valid) {
-      dispatch({ type: SAVE_ADVERT_TAGS, payload: tags.data });
+      return dispatch(getAdvertsTagsSuccess(tags.data));
     }
   } catch (error) {
     console.log("fetchAdverts error", error);
@@ -35,7 +47,7 @@ export const addAdvert = (advertData) => async (dispatch) => {
     const { valid } = await addAdvertToServer(advertData);
 
     if (valid) {
-      dispatch({ type: ADD_ADVERT, payload: advertData });
+      dispatch(addAdvertSuccess(advertData));
     }
   } catch (error) {
     console.log("fetchAdverts error", error);
@@ -47,7 +59,7 @@ export const deleteAdvert = (id) => async (dispatch) => {
     const { valid } = await deleteAdvertFromServer({ id });
 
     if (valid) {
-      dispatch({ type: DELETE_ADVERT, payload: id });
+      dispatch(deleteAdvertSuccess(id));
     }
   } catch (error) {
     console.log("fetchAdverts error", error);

@@ -1,12 +1,7 @@
-import axios from "axios";
-
-import { ApiConnection } from "./api_connection_data";
 import { getSession } from "../storage/user_session";
+import axios from "./core";
 
-const config = {
-  headers: { "Content-Type": "application/json" },
-};
-const { HOST_NAME, PORT } = ApiConnection;
+const config = { headers: {} };
 
 export const request = async (type, path, params) => {
   const { token } = getSession();
@@ -17,24 +12,13 @@ export const request = async (type, path, params) => {
     let response;
     switch (type) {
       case "post":
-        response = await axios.post(
-          `http://${HOST_NAME}:${PORT}/api${path}`,
-          params,
-          config
-        );
+        response = await axios.post(`${path}`, params, config);
         break;
       case "delete":
-        response = await axios.delete(
-          `http://${HOST_NAME}:${PORT}/api${path}`,
-          params,
-          config
-        );
+        response = await axios.delete(`${path}`, params, config);
         break;
       default:
-        response = await axios.get(
-          `http://${HOST_NAME}:${PORT}/api${path}`,
-          config
-        );
+        response = await axios.get(`${path}`, config);
     }
     if (response.status === 201 || response.status === 200) {
       return {
